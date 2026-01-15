@@ -1,0 +1,183 @@
+@{
+    ViewData["Title"] = "Provider Dashboard";
+    var services = ViewBag.Services as List<Service> ?? new List<Service>();
+    var upcomingBookings = ViewBag.UpcomingBookings as List<Booking> ?? new List<Booking>();
+    var reviews = ViewBag.Reviews as List<Review> ?? new List<Review>();
+    var averageRating = ViewBag.AverageRating as double? ?? 0;
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Provider Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-briefcase-fill me-2"></i>My Services</h5>
+                            <h2>@services.Count</h2>
+                        </div>
+                        <i class="bi bi-briefcase-fill fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-calendar-check me-2"></i>Upcoming</h5>
+                            <h2>@upcomingBookings.Count</h2>
+                        </div>
+                        <i class="bi bi-calendar-check fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-star-fill me-2"></i>Reviews</h5>
+                            <h2>@reviews.Count</h2>
+                        </div>
+                        <i class="bi bi-star-fill fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-star-half me-2"></i>Rating</h5>
+                            <h2>@averageRating.ToString("F1")</h2>
+                        </div>
+                        <i class="bi bi-star-half fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>My Services</h4>
+                    <a asp-action="ManageServices" class="btn btn-sm btn-primary">Manage</a>
+                </div>
+                <div class="card-body">
+                    @if (services.Any())
+                    {
+                        @foreach (var service in services.Take(5))
+                        {
+                            <div class="border-bottom pb-2 mb-2">
+                                <h5>@service.Title</h5>
+                                <p class="text-muted">@service.Category.Name - $@service.Price.ToString("F2")</p>
+                                <span class="badge bg-@(service.IsActive ? "success" : "secondary")">@(service.IsActive ? "Active" : "Inactive")</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No services yet. <a asp-action="AddService">Add your first service</a></p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Upcoming Bookings</h4>
+                    <a asp-action="ManageBookings" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    @if (upcomingBookings.Any())
+                    {
+                        @foreach (var booking in upcomingBookings.Take(5))
+                        {
+                            <div class="booking-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="mb-0"><i class="bi bi-briefcase-fill text-primary me-2"></i>@booking.Service.Title</h5>
+                                    <span class="badge bg-@(booking.Status == "Accepted" ? "success" : "warning")">@booking.Status</span>
+                                </div>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-person-fill me-1"></i><strong>Customer:</strong> @booking.Customer.Name
+                                </p>
+                                <p class="mb-3">
+                                    <i class="bi bi-calendar-event me-1"></i><strong>Date:</strong> @booking.BookingDateTime.ToString("MMM dd, yyyy HH:mm")
+                                </p>
+                                @if (booking.Status == "Pending" || booking.Status == "Accepted")
+                                {
+                                    <div class="d-flex gap-2">
+                                        @if (booking.Status == "Pending")
+                                        {
+                                            <form asp-action="UpdateBookingStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                                <input type="hidden" name="status" value="Accepted" />
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Accept
+                                                </button>
+                                            </form>
+                                        }
+                                        <form asp-action="CancelBooking" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                            <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-x-circle me-1"></i>Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No upcoming bookings.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header">
+            <h4>Recent Reviews</h4>
+        </div>
+        <div class="card-body">
+            @if (reviews.Any())
+            {
+                @foreach (var review in reviews)
+                {
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>@review.Customer.Name</strong>
+                            <span>
+                                @for (int i = 0; i < review.Rating; i++)
+                                {
+                                    <span class="text-warning">★</span>
+                                }
+                            </span>
+                        </div>
+                        <p class="text-muted small">@review.Date.ToString("MMM dd, yyyy")</p>
+                        @if (!string.IsNullOrEmpty(review.Comment))
+                        {
+                            <p>@review.Comment</p>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No reviews yet.</p>
+            }
+        </div>
+    </div>
+</div>
+
+

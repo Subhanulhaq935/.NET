@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Leave Review";
+    var booking = ViewBag.Booking as Booking;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>Leave a Review</h3>
+                </div>
+                <div class="card-body">
+                    @if (booking != null)
+                    {
+                        <p><strong>Service:</strong> @booking.Service.Title</p>
+                        <p><strong>Provider:</strong> @booking.Provider.Name</p>
+                        <p><strong>Date:</strong> @booking.BookingDateTime.ToString("MMM dd, yyyy")</p>
+                        <hr>
+                        <form asp-action="Review" method="post">
+                            <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                            <div class="mb-3">
+                                <label class="form-label">Rating (1-5)</label>
+                                <select name="rating" class="form-select" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very Good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Fair</option>
+                                    <option value="1">1 - Poor</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment (Optional)</label>
+                                <textarea name="comment" class="form-control" rows="4"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

@@ -1,0 +1,80 @@
+@model Service
+@{
+    ViewData["Title"] = "Add Service";
+    var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>Add New Service</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddService" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter service title" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label">Category <span class="text-danger">*</span></label>
+                            @if (categories.Any())
+                            {
+                                <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(categories, "CategoryId", "Name"))">
+                                    <option value="0">-- Select Category --</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select class="form-select" disabled>
+                                    <option>No categories available. Please contact administrator.</option>
+                                </select>
+                                <small class="text-danger">No categories available. Admin must add categories first.</small>
+                            }
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your service in detail"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label">Price ($) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Location" class="form-label"></label>
+                            <input asp-for="Location" class="form-control" />
+                            <span asp-validation-for="Location" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" checked />
+                            <label asp-for="IsActive" class="form-check-label">Active</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Service</button>
+                        <a asp-action="ManageServices" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

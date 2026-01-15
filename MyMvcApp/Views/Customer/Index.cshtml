@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Customer Dashboard";
+    var upcomingBookings = ViewBag.UpcomingBookings as List<Booking> ?? new List<Booking>();
+    var pastBookings = ViewBag.PastBookings as List<Booking> ?? new List<Booking>();
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Customer Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-calendar-check me-2"></i>Upcoming</h5>
+                            <h2>@upcomingBookings.Count</h2>
+                        </div>
+                        <i class="bi bi-calendar-check fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-check-circle me-2"></i>Completed</h5>
+                            <h2>@pastBookings.Count(b => b.Status == "Completed")</h2>
+                        </div>
+                        <i class="bi bi-check-circle fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="dashboard-stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <div class="card-body p-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5><i class="bi bi-list-ul me-2"></i>Total</h5>
+                            <h2>@(upcomingBookings.Count + pastBookings.Count)</h2>
+                        </div>
+                        <i class="bi bi-list-ul fs-1 opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h4>Upcoming Bookings</h4>
+                </div>
+                <div class="card-body">
+                    @if (upcomingBookings.Any())
+                    {
+                        @foreach (var booking in upcomingBookings)
+                        {
+                            <div class="booking-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="mb-0"><i class="bi bi-briefcase-fill text-primary me-2"></i>@booking.Service?.Title</h5>
+                                    <span class="badge bg-@(booking.Status == "Accepted" ? "success" : "warning")">@booking.Status</span>
+                                </div>
+                                @if (booking.Provider != null)
+                                {
+                                    <p class="text-muted mb-2">
+                                        <i class="bi bi-person-fill me-1"></i><strong>Provider:</strong> @booking.Provider.Name
+                                    </p>
+                                    <p class="text-muted small mb-2">
+                                        <i class="bi bi-envelope-fill me-1"></i>@booking.Provider.Email
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Provider: Not available</p>
+                                }
+                                <p class="mb-3">
+                                    <i class="bi bi-calendar-event me-1"></i><strong>Date:</strong> @booking.BookingDateTime.ToString("MMM dd, yyyy HH:mm")
+                                </p>
+                                @if (booking.Status == "Pending" || booking.Status == "Accepted")
+                                {
+                                    <form asp-action="CancelBooking" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x-circle me-1"></i>Cancel Booking
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No upcoming bookings.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h4>Past Bookings</h4>
+                </div>
+                <div class="card-body">
+                    @if (pastBookings.Any())
+                    {
+                        @foreach (var booking in pastBookings)
+                        {
+                            <div class="border-bottom pb-3 mb-3">
+                                <h5>@booking.Service?.Title</h5>
+                                @if (booking.Provider != null)
+                                {
+                                    <p class="text-muted">Provider: @booking.Provider.Name</p>
+                                    <p class="text-muted small">Email: @booking.Provider.Email</p>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Provider: Not available</p>
+                                }
+                                <p><strong>Date:</strong> @booking.BookingDateTime.ToString("MMM dd, yyyy HH:mm")</p>
+                                <span class="badge bg-@(booking.Status == "Completed" ? "success" : "secondary")">@booking.Status</span>
+                                @if (booking.Status == "Completed" && booking.Review == null)
+                                {
+                                    <div class="mt-2">
+                                        <a asp-action="Review" asp-route-bookingId="@booking.BookingId" class="btn btn-sm btn-primary">Leave Review</a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No past bookings.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

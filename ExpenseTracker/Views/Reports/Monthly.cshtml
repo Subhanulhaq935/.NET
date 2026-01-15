@@ -1,0 +1,142 @@
+@model MonthlyReportViewModel
+@{
+    ViewData["Title"] = "Monthly Report";
+}
+
+<div class="fade-in">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2" style="color: var(--dark-color); font-weight: 700;">
+                <span>📊</span> Monthly Expense Report
+            </h1>
+            <p class="text-muted">Detailed breakdown of expenses for the selected month</p>
+        </div>
+        <div class="col-md-4">
+            <form method="get" asp-action="Monthly" class="row g-2">
+                <div class="col-5">
+                    <select name="year" class="form-select form-select-lg" onchange="this.form.submit()">
+                        @foreach (var year in Model.AvailableYears)
+                        {
+                            <option value="@year" selected="@(Model.Year == year)">@year</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-4">
+                    <select name="month" class="form-select form-select-lg" onchange="this.form.submit()">
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            var monthName = new DateTime(2000, i, 1).ToString("MMMM");
+                            <option value="@i" selected="@(Model.Month == i)">@monthName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-3">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <span>🔎</span> Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">📊 Total Expenses</h5>
+                            <h2 class="mb-0">@Model.Summary.TotalExpenses</h2>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">📝</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">💰 Total Amount</h5>
+                            <h2 class="mb-0">$@Model.Summary.TotalAmount.ToString("N2")</h2>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">💵</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">📅 Report Period</h5>
+                            <h4 class="mb-0">@((new DateTime(Model.Year, Model.Month, 1)).ToString("MMMM yyyy"))</h4>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">📆</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Summary.CategorySummaries.Any())
+    {
+        <div class="card">
+            <div class="card-header bg-success text-white d-flex align-items-center">
+                <span style="font-size: 1.5rem; margin-right: 0.5rem;">📈</span>
+                <h5 class="mb-0">Category Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Count</th>
+                                <th>Total Amount</th>
+                                <th>Percentage</th>
+                                <th>Visual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var category in Model.Summary.CategorySummaries)
+                            {
+                                <tr>
+                                    <td><strong>@category.Category</strong></td>
+                                    <td>@category.Count</td>
+                                    <td class="text-success"><strong>$@category.TotalAmount.ToString("N2")</strong></td>
+                                    <td><span class="badge bg-info">@category.Percentage.ToString("F1")%</span></td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: @category.Percentage%" 
+                                                 aria-valuenow="@category.Percentage" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                @category.Percentage.ToString("F1")%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">📭</div>
+                    <h5>No expenses found for this period</h5>
+                    <p class="text-muted">Try selecting a different month or <a asp-controller="Expenses" asp-action="Create">add some expenses</a>.</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

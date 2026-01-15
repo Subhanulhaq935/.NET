@@ -1,0 +1,169 @@
+@{
+    ViewData["Title"] = "Authentication";
+    var isLogin = ViewBag.IsLogin ?? true;
+}
+
+<div class="auth-container">
+    <div class="auth-wrapper @(isLogin ? "login-active" : "register-active")">
+        <!-- Background Animation -->
+        <div class="auth-background">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="auth-box">
+            <!-- Toggle Buttons -->
+            <div class="auth-toggle">
+                <button class="toggle-btn @(isLogin ? "active" : "")" id="loginToggle">
+                    <span>🔐</span> Sign In
+                </button>
+                <button class="toggle-btn @(!isLogin ? "active" : "")" id="registerToggle">
+                    <span>✨</span> Sign Up
+                </button>
+            </div>
+
+            <!-- Forms Container -->
+            <div class="forms-container">
+                <!-- Sign In Form -->
+                <div class="auth-form login-form @(isLogin ? "active" : "")">
+                    <div class="form-header">
+                        <h2>Welcome Back!</h2>
+                        <p>Sign in to continue to Expense Tracker</p>
+                    </div>
+                    <form asp-controller="Auth" asp-action="Login" method="post" id="loginForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" id="loginErrors"></div>
+
+                        <div class="form-group">
+                            <label asp-for="@(new LoginViewModel().Email)" class="form-label">
+                                <span>📧</span> Email Address
+                            </label>
+                            <input type="email" name="Email" class="form-control" placeholder="Enter your email" required />
+                            <span class="field-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="@(new LoginViewModel().Password)" class="form-label">
+                                <span>🔑</span> Password
+                            </label>
+                            <input type="password" name="Password" class="form-control" placeholder="Enter your password" required />
+                            <span class="field-error"></span>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" name="RememberMe" id="rememberMe" />
+                            <label for="rememberMe">Remember me for 30 days</label>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <span class="btn-text">Sign In</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div class="auth-form register-form @(!isLogin ? "active" : "")">
+                    <div class="form-header">
+                        <h2>Create Account</h2>
+                        <p>Join Expense Tracker and start tracking your expenses</p>
+                    </div>
+                    <form asp-controller="Auth" asp-action="Register" method="post" id="registerForm">
+                        @Html.AntiForgeryToken()
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" id="registerErrors"></div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span>👤</span> Full Name
+                            </label>
+                            <input type="text" name="FullName" class="form-control" placeholder="Enter your full name" required value="@(ViewData.ModelState["FullName"]?.AttemptedValue ?? "")" />
+                            <span class="field-error">@Html.ValidationMessage("FullName")</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span>📧</span> Email Address
+                            </label>
+                            <input type="email" name="Email" class="form-control" placeholder="Enter your email" required value="@(ViewData.ModelState["Email"]?.AttemptedValue ?? "")" />
+                            <span class="field-error">@Html.ValidationMessage("Email")</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span>🔑</span> Password
+                            </label>
+                            <input type="password" name="Password" class="form-control" placeholder="Enter your password (min 6 characters)" required minlength="6" />
+                            <span class="field-error">@Html.ValidationMessage("Password")</span>
+                            <small class="form-hint">Password must be at least 6 characters long</small>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <span class="btn-text">Create Account</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle between forms
+        const loginToggle = document.getElementById('loginToggle');
+        const registerToggle = document.getElementById('registerToggle');
+        const authWrapper = document.querySelector('.auth-wrapper');
+        const loginForm = document.querySelector('.login-form');
+        const registerForm = document.querySelector('.register-form');
+
+        loginToggle.addEventListener('click', () => {
+            // Prevent multiple rapid clicks
+            if (authWrapper.classList.contains('login-active')) return;
+            
+            authWrapper.classList.remove('register-active');
+            authWrapper.classList.add('login-active');
+            loginToggle.classList.add('active');
+            registerToggle.classList.remove('active');
+            
+            // Smooth form transition
+            registerForm.classList.remove('active');
+            setTimeout(() => {
+                loginForm.classList.add('active');
+            }, 50);
+        });
+
+        registerToggle.addEventListener('click', () => {
+            // Prevent multiple rapid clicks
+            if (authWrapper.classList.contains('register-active')) return;
+            
+            authWrapper.classList.remove('login-active');
+            authWrapper.classList.add('register-active');
+            registerToggle.classList.add('active');
+            loginToggle.classList.remove('active');
+            
+            // Smooth form transition
+            loginForm.classList.remove('active');
+            setTimeout(() => {
+                registerForm.classList.add('active');
+            }, 50);
+        });
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.btn-submit');
+            btn.classList.add('loading');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const btn = this.querySelector('.btn-submit');
+            btn.classList.add('loading');
+        });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

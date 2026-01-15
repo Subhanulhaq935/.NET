@@ -1,0 +1,189 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var totalUsers = ViewBag.TotalUsers as int? ?? 0;
+    var totalProviders = ViewBag.TotalProviders as int? ?? 0;
+    var totalCustomers = ViewBag.TotalCustomers as int? ?? 0;
+    var totalBookings = ViewBag.TotalBookings as int? ?? 0;
+    var pendingProviders = ViewBag.PendingProviders as int? ?? 0;
+    var totalServices = ViewBag.TotalServices as int? ?? 0;
+    var totalReviews = ViewBag.TotalReviews as int? ?? 0;
+    var recentBookings = ViewBag.RecentBookings as List<Booking> ?? new List<Booking>();
+    var bookingStats = ViewBag.BookingStats as dynamic;
+}
+
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <h2>@totalUsers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Providers</h5>
+                    <h2>@totalProviders</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5>Customers</h5>
+                    <h2>@totalCustomers</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5>Pending Providers</h5>
+                    <h2>@pendingProviders</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5>Total Bookings</h5>
+                    <h2>@totalBookings</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5>Total Services</h5>
+                    <h2>@totalServices</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light text-dark">
+                <div class="card-body">
+                    <h5>Total Reviews</h5>
+                    <h2>@totalReviews</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4>Booking Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Quick Actions</h4>
+                </div>
+                <div class="card-body">
+                    <a asp-action="ManageUsers" class="btn btn-primary w-100 mb-2">View All Users</a>
+                    <a asp-action="ManageProviders" class="btn btn-success w-100 mb-2">Manage Providers</a>
+                    <a asp-action="ManageCategories" class="btn btn-info w-100 mb-2">Manage Categories</a>
+                    <a asp-action="AllBookings" class="btn btn-warning w-100 mb-2">View All Bookings</a>
+                    <a asp-action="ExportExcel" class="btn btn-secondary w-100 mb-2">Export to Excel</a>
+                    <a asp-action="ExportPDF" class="btn btn-dark w-100">Export to PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header">
+            <h4>Recent Bookings</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Service</th>
+                            <th>Customer</th>
+                            <th>Provider</th>
+                            <th>Date/Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in recentBookings)
+                        {
+                            <tr>
+                                <td>@booking.BookingId</td>
+                                <td>@booking.Service.Title</td>
+                                <td>@booking.Customer.Name</td>
+                                <td>@booking.Provider.Name</td>
+                                <td>@booking.BookingDateTime.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-@(booking.Status == "Accepted" ? "success" : booking.Status == "Pending" ? "warning" : "secondary")">
+                                        @booking.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ctx = document.getElementById('bookingChart')?.getContext('2d');
+        if (ctx) {
+            const bookingStats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(bookingStats));
+            
+            const labels = bookingStats.map(s => s.status);
+            const data = bookingStats.map(s => s.count);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Bookings by Status',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}
+

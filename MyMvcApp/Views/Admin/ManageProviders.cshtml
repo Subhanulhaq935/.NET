@@ -1,0 +1,62 @@
+@model List<ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Providers";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Providers</h1>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Services</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var provider in Model)
+                        {
+                            <tr>
+                                <td>@provider.Name</td>
+                                <td>@provider.Email</td>
+                                <td>@provider.Services.Count</td>
+                                <td>
+                                    <span class="badge bg-@(provider.IsApproved ? "success" : "warning")">
+                                        @(provider.IsApproved ? "Approved" : "Pending")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (!provider.IsApproved)
+                                    {
+                                        <form asp-action="ApproveProvider" method="post" class="d-inline">
+                                            <input type="hidden" name="userId" value="@provider.Id" />
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="DisableProvider" method="post" class="d-inline">
+                                            <input type="hidden" name="userId" value="@provider.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Disable</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

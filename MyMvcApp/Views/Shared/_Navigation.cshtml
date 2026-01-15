@@ -1,0 +1,93 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
+            <span class="me-2 fs-4">🔧</span>
+            <span>SkillHub</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-house-fill me-1"></i>Home
+                    </a>
+                </li>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("Customer"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Customer" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
+                        </li>
+                    }
+                    @if (User.IsInRole("Provider"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Provider" asp-action="Index">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Provider" asp-action="ManageServices">
+                                <i class="bi bi-briefcase-fill me-1"></i>My Services
+                            </a>
+                        </li>
+                    }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                                <i class="bi bi-shield-check me-1"></i>Admin Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Admin" asp-action="ManageUsers">
+                                <i class="bi bi-people-fill me-1"></i>All Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Admin" asp-action="ManageProviders">
+                                <i class="bi bi-person-badge-fill me-1"></i>Providers
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+            <ul class="navbar-nav">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            @User.Identity.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="btn btn-light btn-sm" asp-controller="Account" asp-action="Login" style="border-radius: 8px; padding: 0.5rem 1rem; white-space: nowrap;">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="btn btn-light btn-sm ms-2" asp-controller="Account" asp-action="Register" style="border-radius: 8px; padding: 0.5rem 1rem; white-space: nowrap;">
+                            <i class="bi bi-person-plus-fill me-1"></i>Register
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+

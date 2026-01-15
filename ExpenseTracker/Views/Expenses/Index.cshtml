@@ -1,0 +1,137 @@
+@model ExpenseListViewModel
+@{
+    ViewData["Title"] = "Expenses";
+}
+
+<div class="fade-in">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-2" style="color: var(--dark-color); font-weight: 700;">
+                <span>📝</span> My Expenses
+            </h1>
+            <p class="text-muted">Manage and track all your expenses</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-primary btn-lg shadow">
+                <span>➕</span> Add New Expense
+            </a>
+        </div>
+    </div>
+
+    <div class="card filter-card mb-4">
+        <div class="card-header bg-light d-flex align-items-center">
+            <span style="font-size: 1.5rem; margin-right: 0.5rem;">🔍</span>
+            <h5 class="mb-0">Filter Expenses</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat" selected="@(Model.FilterCategory == cat)">@cat</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="year" class="form-label">Year</label>
+                    <input type="number" name="year" id="year" class="form-control" value="@Model.FilterYear" placeholder="YYYY" />
+                </div>
+                <div class="col-md-2">
+                    <label for="month" class="form-label">Month</label>
+                    <input type="number" name="month" id="month" class="form-control" value="@Model.FilterMonth" min="1" max="12" placeholder="MM" />
+                </div>
+                <div class="col-md-2">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control" value="@Model.FilterStartDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" value="@Model.FilterEndDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <span>🔎</span> Filter
+                    </button>
+                </div>
+                <div class="col-md-12">
+                    <a asp-action="Index" class="btn btn-link btn-sm">🔄 Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px;">
+        <div class="card-body text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div style="font-size: 2.5rem; margin-right: 1rem;">📊</div>
+                    <h4 class="mb-0 fw-bold" style="font-size: 1.5rem; letter-spacing: 0.5px;">TOTAL EXPENSES</h4>
+                </div>
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-0 me-3 fw-bold" style="font-size: 2.5rem;">@Model.TotalCount</h2>
+                    <div style="font-size: 2.5rem; opacity: 0.8;">📝</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Expenses.Any())
+    {
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var expense in Model.Expenses)
+                            {
+                                <tr class="expense-row">
+                                    <td><strong>@expense.Title</strong></td>
+                                    <td><span class="badge bg-info">@expense.Category</span></td>
+                                    <td class="text-success"><strong>$@expense.Amount.ToString("N2")</strong></td>
+                                    <td>@expense.Date.ToString("MMM dd, yyyy")</td>
+                                    <td>@(expense.Notes ?? "-")</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@expense.Id" class="btn btn-sm btn-warning">
+                                            <span>✏️</span> Edit
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@expense.Id" class="btn btn-sm btn-danger">
+                                            <span>🗑️</span> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">📭</div>
+                    <h5>No expenses found</h5>
+                    <p class="text-muted">Start tracking your expenses by adding your first expense.</p>
+                    <a asp-action="Create" class="btn btn-primary btn-lg">
+                        <span>➕</span> Add Your First Expense
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

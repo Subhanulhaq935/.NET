@@ -1,0 +1,86 @@
+@model List<Booking>
+@{
+    ViewData["Title"] = "Manage Bookings";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Bookings</h1>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Customer</th>
+                            <th>Date/Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in Model)
+                        {
+                            <tr>
+                                <td>@booking.Service.Title</td>
+                                <td>@booking.Customer.Name</td>
+                                <td>@booking.BookingDateTime.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge bg-@(booking.Status == "Accepted" ? "success" : booking.Status == "Pending" ? "warning" : "secondary")">
+                                        @booking.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        @if (booking.Status == "Pending")
+                                        {
+                                            <form asp-action="UpdateBookingStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                                <input type="hidden" name="status" value="Accepted" />
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Accept
+                                                </button>
+                                            </form>
+                                            <form asp-action="CancelBooking" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (booking.Status == "Accepted")
+                                        {
+                                            @if (booking.BookingDateTime <= DateTime.Now)
+                                            {
+                                                <form asp-action="UpdateBookingStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                                    <input type="hidden" name="status" value="Completed" />
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-check2-circle me-1"></i>Mark Completed
+                                                    </button>
+                                                </form>
+                                            }
+                                            <form asp-action="CancelBooking" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this accepted booking?');">
+                                                <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (booking.Status == "Completed" || booking.Status == "Cancelled")
+                                        {
+                                            <span class="text-muted small">No actions available</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

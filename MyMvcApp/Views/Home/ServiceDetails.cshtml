@@ -1,0 +1,114 @@
+@model Service
+@{
+    ViewData["Title"] = "Service Details";
+    var reviews = ViewBag.Reviews as List<Review> ?? new List<Review>();
+    var averageRating = ViewBag.AverageRating as double? ?? 0;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1>@Model.Title</h1>
+                    <p class="text-muted">
+                        <span class="badge bg-info">@Model.Category.Name</span>
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <span class="badge bg-secondary">@Model.Location</span>
+                        }
+                    </p>
+                    <hr>
+                    <h4>Description</h4>
+                    <p>@Model.Description</p>
+                    <hr>
+                    <h4>Provider Information</h4>
+                    @if (Model.Provider != null)
+                    {
+                        <p><strong>Name:</strong> @Model.Provider.Name</p>
+                        <p><strong>Email:</strong> @Model.Provider.Email</p>
+                        @if (!string.IsNullOrEmpty(Model.Provider.PhoneNumber))
+                        {
+                            <p><strong>Phone:</strong> @Model.Provider.PhoneNumber</p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Provider information not available.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-header">
+                    <h4>Reviews (@reviews.Count)</h4>
+                </div>
+                <div class="card-body">
+                    @if (reviews.Any())
+                    {
+                        <div class="mb-3">
+                            <h5>Average Rating: @averageRating.ToString("F1") / 5.0</h5>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @((averageRating / 5) * 100)%"></div>
+                            </div>
+                        </div>
+                        @foreach (var review in reviews)
+                        {
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@review.Customer.Name</strong>
+                                    <span>
+                                        @for (int i = 0; i < review.Rating; i++)
+                                        {
+                                            <span class="text-warning">★</span>
+                                        }
+                                        @for (int i = review.Rating; i < 5; i++)
+                                        {
+                                            <span class="text-muted">★</span>
+                                        }
+                                    </span>
+                                </div>
+                                <p class="text-muted small">@review.Date.ToString("MMM dd, yyyy")</p>
+                                @if (!string.IsNullOrEmpty(review.Comment))
+                                {
+                                    <p>@review.Comment</p>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No reviews yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h3 class="text-primary mb-2">$@Model.Price.ToString("F2")</h3>
+                        <p class="text-muted small">per service</p>
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Customer"))
+                    {
+                        <a asp-controller="Customer" asp-action="Book" asp-route-serviceId="@Model.ServiceId" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-calendar-check-fill me-2"></i>Book This Service
+                        </a>
+                    }
+                    else if (User.Identity?.IsAuthenticated == false)
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Book
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Only customers can book services.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

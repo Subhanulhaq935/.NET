@@ -1,0 +1,178 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="fade-in">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2" style="color: var(--dark-color); font-weight: 700;">
+                👋 Welcome back, @User.Identity?.Name!
+            </h1>
+            <p class="text-muted mb-0">Here's your expense overview for <strong>@ViewBag.MonthName</strong></p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">📊 Total Expenses</h5>
+                            <h2 class="mb-0">@ViewBag.TotalCount</h2>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">📝</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">💰 Total Amount</h5>
+                            <h2 class="mb-0">$@ViewBag.TotalAmount.ToString("N2")</h2>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">💵</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white dashboard-stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-3">📅 Month</h5>
+                            <h4 class="mb-0">@ViewBag.MonthName</h4>
+                        </div>
+                        <div style="font-size: 3rem; opacity: 0.3;">📆</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">📋</span>
+                    <h5 class="mb-0">Recent Expenses</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.RecentExpenses != null && ((List<ExpenseTracker.DTOs.Expense.ExpenseResponseDto>)ViewBag.RecentExpenses).Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in (List<ExpenseTracker.DTOs.Expense.ExpenseResponseDto>)ViewBag.RecentExpenses)
+                                    {
+                                        <tr class="expense-row">
+                                            <td><strong>@expense.Title</strong></td>
+                                            <td class="text-success"><strong>$@expense.Amount.ToString("N2")</strong></td>
+                                            <td>@expense.Date.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <a asp-controller="Expenses" asp-action="Index" class="btn btn-primary">
+                                <span>👁️</span> View All Expenses
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
+                            <h5>No expenses yet</h5>
+                            <p class="text-muted">Start tracking your expenses by adding your first one.</p>
+                            <a asp-controller="Expenses" asp-action="Create" class="btn btn-primary btn-lg">
+                                ➕ Add Your First Expense
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white d-flex align-items-center">
+                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">📊</span>
+                    <h5 class="mb-0">Category Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.CategorySummaries != null && ((List<ExpenseTracker.DTOs.Report.CategorySummaryDto>)ViewBag.CategorySummaries).Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var category in (List<ExpenseTracker.DTOs.Report.CategorySummaryDto>)ViewBag.CategorySummaries)
+                                    {
+                                        <tr>
+                                            <td><strong>@category.Category</strong></td>
+                                            <td class="text-success"><strong>$@category.TotalAmount.ToString("N2")</strong></td>
+                                            <td><span class="badge bg-info">@category.Percentage.ToString("F1")%</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <a asp-controller="Reports" asp-action="Category" class="btn btn-success">
+                                <span>📈</span> View Full Report
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                            <h5>No category data</h5>
+                            <p class="text-muted">Category breakdown will appear once you add expenses.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <div class="card-body text-center text-white py-4">
+                    <h4 class="mb-4">Quick Actions</h4>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a asp-controller="Expenses" asp-action="Create" class="btn btn-light btn-lg shadow">
+                            <span style="font-size: 1.2rem;">➕</span> Add New Expense
+                        </a>
+                        <a asp-controller="Expenses" asp-action="Index" class="btn btn-outline-light btn-lg">
+                            <span style="font-size: 1.2rem;">📋</span> View All Expenses
+                        </a>
+                        <a asp-controller="Reports" asp-action="Monthly" class="btn btn-outline-light btn-lg">
+                            <span style="font-size: 1.2rem;">📊</span> View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

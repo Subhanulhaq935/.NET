@@ -1,0 +1,62 @@
+@model List<Service>
+@{
+    ViewData["Title"] = "Manage Services";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Manage Services</h1>
+        <a asp-action="AddService" class="btn btn-primary">Add New Service</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var service in Model)
+                            {
+                                <tr>
+                                    <td>@service.Title</td>
+                                    <td>@service.Category.Name</td>
+                                    <td>$@service.Price.ToString("F2")</td>
+                                    <td>
+                                        <span class="badge bg-@(service.IsActive ? "success" : "secondary")">
+                                            @(service.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-action="EditService" asp-route-id="@service.ServiceId" class="btn btn-sm btn-primary">Edit</a>
+                                        <form asp-action="DeleteService" asp-route-id="@service.ServiceId" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this service?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No services yet. <a asp-action="AddService">Add your first service</a></p>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+

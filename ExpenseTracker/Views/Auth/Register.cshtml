@@ -1,0 +1,66 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg fade-in">
+            <div class="card-header text-white text-center" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                <h3 class="mb-0">Create Account</h3>
+                <p class="mb-0 mt-2" style="opacity: 0.9;">Join Expense Tracker today</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="FullName" class="form-label">
+                            <span>👤</span> Full Name
+                        </label>
+                        <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label">
+                            <span>📧</span> Email Address
+                        </label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label">
+                            <span>🔑</span> Password
+                        </label>
+                        <input asp-for="Password" class="form-control" placeholder="Enter your password (min 6 characters)" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <small class="form-text text-muted">Password must be at least 6 characters long.</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <span>🚀</span> Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Already have an account? 
+                            <a asp-action="Login" class="text-decoration-none fw-bold" style="color: var(--success-color);">
+                                <span>🔐</span> Login here
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

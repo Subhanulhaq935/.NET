@@ -1,0 +1,63 @@
+@model Service
+@{
+    ViewData["Title"] = "Book Service";
+    var availabilities = ViewBag.Availabilities as List<Availability> ?? new List<Availability>();
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3>Book: @Model.Title</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Provider:</strong> @Model.Provider.Name</p>
+                    <p><strong>Price:</strong> $@Model.Price.ToString("F2")</p>
+                    <p><strong>Description:</strong> @Model.Description</p>
+                    <hr>
+                    <h4>Select Date & Time</h4>
+                    <form asp-action="Book" method="post">
+                        <input type="hidden" name="serviceId" value="@Model.ServiceId" />
+                        <div class="mb-3">
+                            <label class="form-label">Booking Date & Time</label>
+                            <input type="datetime-local" name="bookingDateTime" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Booking Request</button>
+                        <a asp-controller="Home" asp-action="ServiceDetails" asp-route-id="@Model.ServiceId" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5>Provider Availability</h5>
+                </div>
+                <div class="card-body">
+                    @if (availabilities.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var avail in availabilities.Take(10))
+                            {
+                                <li class="list-group-item">
+                                    @avail.Date.ToString("MMM dd, yyyy") - 
+                                    @avail.StartTime.ToString(@"hh\:mm") to @avail.EndTime.ToString(@"hh\:mm")
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No availability slots listed. You can still book by selecting a date/time.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
